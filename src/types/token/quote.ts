@@ -1,6 +1,6 @@
 import { Networks } from "../../enums/network/ecosystem";
 
-export type TokenData = {
+export type TokenReqData = {
   name: string;
   symbol: string;
   decimals: number;
@@ -8,4 +8,9 @@ export type TokenData = {
   network: Networks;
   address: string;
   bal: string;
+};
+
+export type TokenResData = {
+  address: string;
+  amount: string;
 };
