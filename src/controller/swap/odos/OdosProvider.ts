@@ -15,18 +15,18 @@ class OdosProvider {
 
   async getQuoteRate(args: QuoteRequest) {
     try {
-      const { amount, from, recipient, slippage, to, sender } = args;
+      const { from, recipient, slippage, to, sender } = args;
       const quoteRequestBody = {
-        chainId: from.chainId,
+        chainId: from.assets.chainId,
         inputTokens: [
           {
-            tokenAddress: checksumAddress(from.address as HexString),
-            amount,
+            tokenAddress: checksumAddress(from.assets.address as HexString),
+            amount: from.amount,
           },
         ],
         outputTokens: [
           {
-            tokenAddress: checksumAddress(to.address as HexString),
+            tokenAddress: checksumAddress(to.assets.address as HexString),
             proportion: 1,
           },
         ],

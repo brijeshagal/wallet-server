@@ -1,8 +1,8 @@
-import { TokenReqData } from "../token/quote";
+import { CompleteFormToken } from "../token/quote";
 
 export type QuoteRequest = {
-  from: TokenReqData;
-  to: TokenReqData;
+  from: CompleteFormToken;
+  to: CompleteFormToken;
   sender: string;
   recipient: string;
   slippage: number;

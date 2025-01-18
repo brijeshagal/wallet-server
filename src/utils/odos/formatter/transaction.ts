@@ -4,8 +4,11 @@ import {
   OdosQuoteResponse,
   OdosTokenResponse,
 } from "../../../types/providers/odos/swap/quote";
-import { ProviderQuoteResponse } from "../../../types/quote/response";
-import { TokenResData } from "../../../types/token/quote";
+import {
+  ProviderQuoteResponse,
+  QuoteResponse,
+} from "../../../types/quote/response";
+import { TokenRes } from "../../../types/token/quote";
 import { joinStrings } from "../../common/string";
 import { getTokenAddress } from "../../token/address";
 
@@ -16,21 +19,21 @@ const modifyTokenFormat = (chainId: number, tokens: OdosTokenResponse[]) => {
     return {
       ...acc,
       [tokenKey]: {
+        chainId,
         address: tokenAddress,
         amount: token.amount,
       },
     };
-  }, {} as Record<string, TokenResData>);
+  }, {} as TokenRes);
 };
 
 export const modifyOdosBuildToQuoteResponse = (
   quoteRes: ProviderQuoteResponse,
   buildRes: OdosBuildResponse
-) => {
+): QuoteResponse => {
   const chainId = buildRes.transaction.chainId;
   return {
     toAddress: buildRes.transaction.to,
-    chainId: buildRes.transaction.chainId,
     data: buildRes.transaction.data,
     from: modifyTokenFormat(chainId, buildRes.inputTokens),
     to: modifyTokenFormat(chainId, buildRes.outputTokens),
@@ -47,6 +50,6 @@ export const modifyOdosQuoteResponse = (
     inAmounts: quoteRes.inAmounts,
     outAmounts: quoteRes.outAmounts,
     pathId: quoteRes.pathId,
-    provider: Providers.Odos, // Assigning 'ODOS' as the provider name
+    provider: Providers.Odos,
   };
 };

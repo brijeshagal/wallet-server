@@ -1,16 +1,13 @@
-import { Networks } from "../../enums/network/ecosystem";
+import { Token } from ".";
 
-export type TokenReqData = {
-  name: string;
-  symbol: string;
-  decimals: number;
-  chainId: number;
-  network: Networks;
-  address: string;
-  bal: string;
-};
+export type FormToken = { assets?: Token; amount: string };
+
+export type CompleteFormToken = Required<FormToken>;
+
+export type TokenRes = Record<string, TokenResData>;
 
 export type TokenResData = {
+  chainId: number;
   address: string;
   amount: string;
 };

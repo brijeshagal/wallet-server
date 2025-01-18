@@ -1,4 +1,5 @@
 import { Providers } from "../../enums/providers/swap";
+import { TokenRes } from "../token/quote";
 
 export type ProviderQuoteResponse = {
   from: string[];
@@ -11,8 +12,9 @@ export type ProviderQuoteResponse = {
 
 export type QuoteResponse = {
   toAddress: string;
-  from: string;
-  netOutputValue: number;
+  from: TokenRes;
+  to: TokenRes;
+  // netOutputValue: number;
   data: string;
   provider: Providers;
 };
