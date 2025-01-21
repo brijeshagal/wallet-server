@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getQuotes } from "../controller/swap/quote";
+import Controller from "../controller/Controller";
 
 const quotesRouter = Router();
+const controller = new Controller();
 
-quotesRouter.post("/quote", getQuotes);
+quotesRouter.post("/quote", controller.getBestQuote);
 
 export default quotesRouter;
