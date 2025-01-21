@@ -4,6 +4,7 @@ import {
   OdosQuoteResponse,
   OdosTokenResponse,
 } from "../../../types/providers/odos/swap/quote";
+import { QuoteRequest } from "../../../types/quote/request";
 import {
   ProviderQuoteResponse,
   QuoteResponse,
@@ -42,13 +43,20 @@ export const modifyOdosBuildToQuoteResponse = (
 };
 
 export const modifyOdosQuoteResponse = (
-  quoteRes: OdosQuoteResponse
+  quoteRes: OdosQuoteResponse,
+  quoteReq: QuoteRequest
 ): ProviderQuoteResponse => {
   return {
-    from: quoteRes.inTokens,
-    to: quoteRes.outTokens,
-    inAmounts: quoteRes.inAmounts,
-    outAmounts: quoteRes.outAmounts,
+    from: {
+      address: getTokenAddress(quoteRes.inTokens[0]),
+      amount: quoteRes.inAmounts[0],
+      chainId: quoteReq.from.assets.chainId,
+    },
+    to: {
+      address: getTokenAddress(quoteRes.outTokens[0]),
+      amount: quoteRes.outAmounts[0],
+      chainId: quoteReq.to.assets.chainId,
+    },
     pathId: quoteRes.pathId,
     provider: Providers.Odos,
   };

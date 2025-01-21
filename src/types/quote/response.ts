@@ -1,11 +1,9 @@
 import { Providers } from "../../enums/providers/swap";
-import { TokenRes } from "../token/quote";
+import { TokenRes, TokenResData } from "../token/quote";
 
 export type ProviderQuoteResponse = {
-  from: string[];
-  to: string[];
-  inAmounts: string[];
-  outAmounts: string[];
+  from: TokenResData;
+  to: TokenResData;
   pathId: string;
   provider: Providers;
 };

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { checksumAddress } from "viem";
 import { HexString } from "../../../types/address/evm";
+import { IDexProvider } from "../../../types/providers/common/dexProvider";
 import { OdosQuoteResponse } from "../../../types/providers/odos/swap/quote";
 import { QuoteRequest } from "../../../types/quote/request";
 import { ProviderQuoteResponse } from "../../../types/quote/response";
@@ -9,13 +10,13 @@ import {
   modifyOdosQuoteResponse,
 } from "../../../utils/odos/formatter/transaction";
 
-class OdosProvider {
+class OdosProvider implements IDexProvider {
   quoteUrl = "https://api.odos.xyz/sor/quote/v2";
   assembleUrl = "https://api.odos.xyz/sor/assemble";
 
-  async getQuoteRate(args: QuoteRequest) {
+  async getQuoteRate(quoteReq: QuoteRequest) {
     try {
-      const { from, recipient, slippage, to, sender } = args;
+      const { from, recipient, slippage, to, sender } = quoteReq;
       const quoteRequestBody = {
         chainId: from.assets.chainId,
         inputTokens: [
@@ -42,8 +43,8 @@ class OdosProvider {
       });
 
       if (quoteResponse.status === 200) {
-        const quote = quoteResponse.data as OdosQuoteResponse;
-        const modifiedQuote = modifyOdosQuoteResponse(quote);
+        const quoteRes = quoteResponse.data as OdosQuoteResponse;
+        const modifiedQuote = modifyOdosQuoteResponse(quoteRes, quoteReq);
         return modifiedQuote;
       } else {
         console.error("Error in Quote:", quoteResponse.statusText);

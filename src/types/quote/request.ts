@@ -1,3 +1,4 @@
+import { InputSrc } from "../../enums/token";
 import { CompleteFormToken } from "../token/quote";
 
 export type QuoteRequest = {
@@ -7,4 +8,5 @@ export type QuoteRequest = {
   recipient: string;
   slippage: number;
   amount: string;
+  inputSrc: InputSrc;
 };
