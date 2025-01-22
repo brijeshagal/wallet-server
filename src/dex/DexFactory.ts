@@ -17,7 +17,7 @@ export class DexFactory {
 
   async getBestQuote(quoteRequest: QuoteRequest) {
     const { from, to, inputSrc } = quoteRequest;
-    const supportedProviders = getSupportedProviders({ from, to });
+    const supportedProviders = getSupportedProviders({ from, to, inputSrc });
     try {
       const promises = async (dex: Providers) => {
         return await this.providers[dex].getQuoteRate(quoteRequest);
@@ -26,18 +26,22 @@ export class DexFactory {
       const quotesResponses = await Promise.allSettled(
         supportedProviders.map(promises)
       );
-      const successQuotes = quotesResponses
-        .filter((res) => res.status === "fulfilled")
-        .map((res) => res.value);
-
-      const bestQuote = getBestQuote(
-        successQuotes as ProviderQuoteResponse[],
-        inputSrc
+      const successQuotes = quotesResponses.reduce<ProviderQuoteResponse[]>(
+        (acc, res) => {
+          if (res.status === "fulfilled" && res.value !== undefined) {
+            acc.push(res.value);
+          }
+          return acc;
+        },
+        []
       );
+
+      const bestQuote = getBestQuote(successQuotes, inputSrc);
       if (bestQuote) {
-        return await this.providers[bestQuote.provider].getTransactionData({
+        return await this.providers[
+          bestQuote.modifiedQuote.provider
+        ].getTransactionData({
           quoteRes: bestQuote,
-          sender: quoteRequest.sender,
         });
       }
     } catch (e) {

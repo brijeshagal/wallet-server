@@ -7,5 +7,5 @@ export const getTokenAddress = (address: string) => {
   if (address.toLowerCase() === eFormatNativeCurrencyLowerCase) {
     return nativeCurrency;
   }
-  return address.toLowerCase();
+  return address;
 };

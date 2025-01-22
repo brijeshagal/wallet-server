@@ -5,17 +5,16 @@ export function getBestQuote(
   successQuotes: ProviderQuoteResponse[],
   inputSrc: InputSrc
 ): ProviderQuoteResponse | undefined {
-  console.log({ successQuotes });
   return successQuotes.reduce((best, current) => {
-    const bestAmount = best.from // @dev checks if best is empty or not
+    const bestAmount = best.modifiedQuote // @dev checks if best is empty or not
       ? inputSrc === InputSrc.From
-        ? BigInt(best.from.amount)
-        : BigInt(best.to.amount)
+        ? BigInt(best.modifiedQuote.from.amount)
+        : BigInt(best.modifiedQuote.to.amount)
       : 0n;
     const currentAmount =
       inputSrc === InputSrc.From
-        ? BigInt(current.from.amount)
-        : BigInt(current.to.amount);
+        ? BigInt(current.modifiedQuote.from.amount)
+        : BigInt(current.modifiedQuote.to.amount);
 
     return currentAmount > bestAmount ? current : best;
   }, {} as ProviderQuoteResponse);

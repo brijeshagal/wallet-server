@@ -1,28 +1,29 @@
 import axios from "axios";
 import { checksumAddress } from "viem";
-import { HexString } from "../../../types/address/evm";
-import { IDexProvider } from "../../../types/providers/common/dexProvider";
-import { OdosQuoteResponse } from "../../../types/providers/odos/swap/quote";
-import { QuoteRequest } from "../../../types/quote/request";
-import { ProviderQuoteResponse } from "../../../types/quote/response";
+import { HexString } from "../../types/address/evm";
+import { IDexProvider } from "../../types/providers/common/dexProvider";
+import { QuoteRequest } from "../../types/quote/request";
+import { ProviderQuoteResponse } from "../../types/quote/response";
+import { OdosQuoteResponse } from "./types/quote";
 import {
-  modifyOdosBuildToQuoteResponse,
   modifyOdosQuoteResponse,
-} from "../../../utils/odos/formatter/transaction";
+  transformOdosBuildResponse,
+} from "./utils/formatter/quote";
 
-class OdosProvider implements IDexProvider {
+export default class OdosProvider implements IDexProvider {
   quoteUrl = "https://api.odos.xyz/sor/quote/v2";
   assembleUrl = "https://api.odos.xyz/sor/assemble";
 
   async getQuoteRate(quoteReq: QuoteRequest) {
     try {
-      const { from, recipient, slippage, to, sender } = quoteReq;
+      const { from, recipient, slippage, to, sender, inputSrc } = quoteReq;
+      const amount = quoteReq[inputSrc].amount;
       const quoteRequestBody = {
         chainId: from.assets.chainId,
         inputTokens: [
           {
             tokenAddress: checksumAddress(from.assets.address as HexString),
-            amount: from.amount,
+            amount,
           },
         ],
         outputTokens: [
@@ -45,7 +46,7 @@ class OdosProvider implements IDexProvider {
       if (quoteResponse.status === 200) {
         const quoteRes = quoteResponse.data as OdosQuoteResponse;
         const modifiedQuote = modifyOdosQuoteResponse(quoteRes, quoteReq);
-        return modifiedQuote;
+        return { modifiedQuote, rawQuote: quoteRes };
       } else {
         console.error("Error in Quote:", quoteResponse.statusText);
         return;
@@ -56,16 +57,15 @@ class OdosProvider implements IDexProvider {
     }
   }
   async getTransactionData({
-    sender,
     quoteRes,
   }: {
-    sender: string;
     quoteRes: ProviderQuoteResponse;
   }) {
     try {
+      const { modifiedQuote } = quoteRes;
       const assembleRequestBody = {
-        userAddr: checksumAddress(sender as HexString),
-        pathId: quoteRes.pathId, // Replace with the pathId from quote response in step 1
+        userAddr: checksumAddress(modifiedQuote.sender as HexString),
+        pathId: modifiedQuote.pathId, // Replace with the pathId from quote response in step 1
         simulate: false, // this can be set to true if the user isn't doing their own estimate gas call for the transaction
       };
       const assembledResponse = await axios.post(
@@ -76,8 +76,8 @@ class OdosProvider implements IDexProvider {
         }
       );
       const assembledTransaction = assembledResponse.data;
-      const buildData = modifyOdosBuildToQuoteResponse(
-        quoteRes,
+      const buildData = transformOdosBuildResponse(
+        quoteRes.modifiedQuote,
         assembledTransaction
       );
       return buildData;
@@ -87,5 +87,3 @@ class OdosProvider implements IDexProvider {
     }
   }
 }
-
-export default OdosProvider;

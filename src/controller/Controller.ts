@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { DexFactory } from "../swap/SwapFactory";
+import { DexFactory } from "../dex/DexFactory";
 import { QuoteRequest } from "../types/quote/request";
 
 export default class Controller {

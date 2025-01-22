@@ -7,6 +7,5 @@ export type QuoteRequest = {
   sender: string;
   recipient: string;
   slippage: number;
-  amount: string;
   inputSrc: InputSrc;
 };
