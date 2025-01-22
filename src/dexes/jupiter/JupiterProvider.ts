@@ -14,8 +14,7 @@ export default class JupiterProvider implements IDexProvider {
 
   async getQuoteRate(quoteReq: QuoteRequest) {
     try {
-      const { from, recipient, slippage, to, sender, inputSrc } = quoteReq;
-      console.log({ quoteReq });
+      const { from, slippage, to, inputSrc } = quoteReq;
       const amount = quoteReq[inputSrc].amount;
       const quoteResponse = await (
         await fetch(
@@ -26,7 +25,6 @@ export default class JupiterProvider implements IDexProvider {
           }`
         )
       ).json();
-      console.log({ quoteResponse });
       const modifiedQuote = modifyJupiterQuoteResponse(quoteResponse, quoteReq);
       return { modifiedQuote, rawQuote: quoteResponse };
     } catch (e) {
@@ -34,11 +32,7 @@ export default class JupiterProvider implements IDexProvider {
       return;
     }
   }
-  async getTransactionData({
-    quoteRes,
-  }: {
-    quoteRes: ProviderQuoteResponse;
-  }) {
+  async getTransactionData({ quoteRes }: { quoteRes: ProviderQuoteResponse }) {
     try {
       const { modifiedQuote, rawQuote } = quoteRes;
       const publicKey = new PublicKey(quoteRes.modifiedQuote.sender);
