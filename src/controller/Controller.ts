@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { DexFactory } from "../dex/DexFactory";
 import { QuoteRequest } from "../types/quote/request";
+import { DexFactory } from "../factory/DexFactory";
 
 export default class Controller {
   private dexFactory: DexFactory;

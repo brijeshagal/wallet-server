@@ -1,3 +1,4 @@
+import LifiProvider from "../../dexes/jupiter/JupiterProvider";
 import JupiterProvider from "../../dexes/jupiter/JupiterProvider";
 import OdosProvider from "../../dexes/odos/OdosProvider";
 import { Networks } from "../../enums/network/ecosystem";
@@ -18,9 +19,16 @@ export const DexSupportDetails: Record<Providers, ProviderSupportDetails> = {
     isCrossChainSupported: false,
     isOutputSrcSupported: true,
   },
+  [Providers.Lifi]: {
+    from: new Set([Networks.EVM, Networks.SVM]),
+    to: new Set([Networks.EVM, Networks.SVM]),
+    isCrossChainSupported: true,
+    isOutputSrcSupported: true,
+  },
 };
 
 export const dexes: Record<Providers, IDexProvider> = {
   [Providers.Odos]: new OdosProvider(),
   [Providers.Jupiter]: new JupiterProvider(),
+  [Providers.Lifi]: new LifiProvider(),
 };

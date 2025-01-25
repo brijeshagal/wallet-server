@@ -2,15 +2,14 @@ import { PublicKey } from "@solana/web3.js";
 import { IDexProvider } from "../../types/providers/common/dexProvider";
 import { QuoteRequest } from "../../types/quote/request";
 import { ProviderQuoteResponse } from "../../types/quote/response";
-import { JUP_BPS_MULTIPLIER } from "./config";
 import {
   modifyJupiterQuoteResponse,
   transformJupiterBuildResponse,
 } from "./utils/formatter/quote";
 
-export default class JupiterProvider implements IDexProvider {
-  quoteUrl = "https://api.odos.xyz/sor/quote/v2";
-  assembleUrl = "https://api.odos.xyz/sor/assemble";
+export default class LifiProvider implements IDexProvider {
+  quoteUrl = "https://quote-api.jup.ag/v6/quote";
+  buildUrl = "https://quote-api.jup.ag/v6/swap";
 
   async getQuoteRate(quoteReq: QuoteRequest) {
     try {
@@ -18,11 +17,7 @@ export default class JupiterProvider implements IDexProvider {
       const amount = quoteReq[inputSrc].amount;
       const quoteResponse = await (
         await fetch(
-          `https://quote-api.jup.ag/v6/quote?inputMint=${
-            from.assets.address
-          }&outputMint=${to.assets.address}&amount=${amount}&slippageBps=${
-            slippage * JUP_BPS_MULTIPLIER
-          }`
+          `${this.quoteUrl}?inputMint=${from.assets.address}&outputMint=${to.assets.address}&amount=${amount}&slippageBps=${slippage}`
         )
       ).json();
       const modifiedQuote = modifyJupiterQuoteResponse(quoteResponse, quoteReq);
@@ -37,7 +32,7 @@ export default class JupiterProvider implements IDexProvider {
       const { modifiedQuote, rawQuote } = quoteRes;
       const publicKey = new PublicKey(quoteRes.modifiedQuote.sender);
       const transactionData = await (
-        await fetch("https://quote-api.jup.ag/v6/swap", {
+        await fetch(this.buildUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
