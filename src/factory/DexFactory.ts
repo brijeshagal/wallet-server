@@ -3,8 +3,7 @@ import { Providers } from "../enums/providers/swap";
 import { getSupportedProviders } from "../lib/providers/network";
 import { IDexProvider } from "../types/providers/common/dexProvider";
 import { QuoteRequest } from "../types/quote/request";
-import { ProviderQuoteResponse } from "../types/quote/response";
-import { getBestQuote } from "../utils/quote/comparison";
+import { QuoteResponse } from "../types/quote/response";
 
 export class DexFactory {
   private providers: {
@@ -26,7 +25,7 @@ export class DexFactory {
       const quotesResponses = await Promise.allSettled(
         supportedProviders.map(promises)
       );
-      const successQuotes = quotesResponses.reduce<ProviderQuoteResponse[]>(
+      const successQuotes = quotesResponses.reduce<QuoteResponse[]>(
         (acc, res) => {
           if (res.status === "fulfilled" && res.value !== undefined) {
             acc.push(res.value);
@@ -35,14 +34,8 @@ export class DexFactory {
         },
         []
       );
-
-      const bestQuote = getBestQuote(successQuotes, inputSrc);
-      if (bestQuote) {
-        return await this.providers[
-          bestQuote.modifiedQuote.provider
-        ].getTransactionData({
-          quoteRes: bestQuote,
-        });
+      if (successQuotes.length) {
+        return successQuotes[0];
       }
     } catch (e) {
       console.error("Error fetching quote:", e);

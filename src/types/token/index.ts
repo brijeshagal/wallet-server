@@ -1,6 +1,6 @@
 import { Networks } from "../../enums/network/ecosystem";
 
-export type Token = {
+export type RequestToken = {
   name: string;
   symbol: string;
   decimals: number;

@@ -2,7 +2,6 @@ import axios from "axios";
 import { InputSrc } from "../../enums/token";
 import { IDexProvider } from "../../types/providers/common/dexProvider";
 import { QuoteRequest } from "../../types/quote/request";
-import { ProviderQuoteResponse } from "../../types/quote/response";
 import { LIFI_BPS_DIVIDER } from "./config";
 import { LifiQuoteResponse } from "./types/quote";
 
@@ -40,20 +39,9 @@ export default class LifiProvider implements IDexProvider {
         params,
       });
       const rawQuote = quoteResponse.data as LifiQuoteResponse;
-      const modifiedQuote = modifyLifiQuoteResponse(rawQuote, quoteReq);
-      return { modifiedQuote, rawQuote: rawQuote };
+      return rawQuote;
     } catch (e) {
       console.error({ e });
-      return;
-    }
-  }
-  async getTransactionData({ quoteRes }: { quoteRes: ProviderQuoteResponse }) {
-    try {
-      const { modifiedQuote, rawQuote } = quoteRes;
-      const buildData = transformLifiBuildResponse(modifiedQuote, rawQuote);
-      return buildData;
-    } catch (e) {
-      console.log({ e });
       return;
     }
   }

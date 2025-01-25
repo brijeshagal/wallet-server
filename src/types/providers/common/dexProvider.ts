@@ -1,11 +1,6 @@
 import { QuoteRequest } from "../../quote/request";
-import { ProviderQuoteResponse, QuoteResponse } from "../../quote/response";
+import { QuoteResponse } from "../../quote/response";
 
 export interface IDexProvider {
-  getQuoteRate(args: QuoteRequest): Promise<ProviderQuoteResponse | undefined>;
-  getTransactionData({
-    quoteRes,
-  }: {
-    quoteRes: ProviderQuoteResponse;
-  }): Promise<QuoteResponse | undefined>;
+  getQuoteRate(args: QuoteRequest): Promise<QuoteResponse | undefined>;
 }
