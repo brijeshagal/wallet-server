@@ -12,6 +12,10 @@ app.use(express.json());
 
 app.use("/swap", quotesRouter);
 app.use("/actions", actionsRouter);
+app.get("/auth/callback", async (req, res) => {
+  const { state, code } = req.query as { state: string; code: string };
+  res.redirect(`${process.env.EXPO_APP_LINK}?state=${state}&code=${code}`);
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
