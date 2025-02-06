@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
+import { UserModel } from "../database/schema/user";
 import NotificationService from "../notification/NotificationService";
 import { RequestActionNotification } from "../types/actions/request";
+import { getNetworkFromAddress } from "../utils/common/address";
 
 export default class ActionsController {
   constructor() {}
@@ -11,7 +13,17 @@ export default class ActionsController {
     const { recipient } = data as RequestActionNotification;
 
     const isTwitterHandle = recipient.startsWith("@");
-
+    let user;
+    if (isTwitterHandle) {
+      user = await UserModel.findOne({ "twitter.id": recipient });
+    } else {
+      const network = getNetworkFromAddress(recipient);
+      if (!network) {
+        res.status(300).json({ error: "Unsupported address" });
+        return;
+      }
+      
+    }
     const expoPushToken = "ExponentPushToken[wJbAA6LwCdjqg0cKhTJJye]";
     if (expoPushToken) {
       await NotificationService.sendPushNotification({

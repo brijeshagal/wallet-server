@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { User } from "../database/schema/user";
+import { UserModel } from "../database/schema/user";
 
 const userDatabaseRouter = Router();
 
@@ -13,7 +13,7 @@ userDatabaseRouter.post("/exists/twitter/:twitterId", async (req, res) => {
     }
 
     // Check if user exists
-    const user = await User.findOne({ "twitter.id": twitterId });
+    const user = await UserModel.findOne({ "twitter.id": twitterId });
 
     if (user) {
       res.status(200).json({ exists: true, user });
@@ -25,41 +25,57 @@ userDatabaseRouter.post("/exists/twitter/:twitterId", async (req, res) => {
   }
 });
 
-userDatabaseRouter.get("/twitter/:twitterId", async (req, res) => {
+userDatabaseRouter.get("/add/twitter/:twitterId", async (req, res) => {
+  const { userId, twitterUserId, twitterUsername } = req.body;
   try {
-    const user = await User.findOne({ "twitter.id": req.params.twitterId });
+    const user = await UserModel.findByIdAndUpdate(
+      userId, // Find user by their uniqueId
+      {
+        $set: {
+          "twitter.id": twitterUserId,
+          "twitter.username": twitterUsername,
+        },
+      },
+      { new: true } // Return updated user
+    );
 
     if (user) {
-      res.status(200).json({ exists: true, user });
+      console.log("✅ Twitter info updated:", user);
+      res.status(200);
     } else {
-      res.status(404).json({ exists: false, message: "User not found" });
+      console.log("❌ No user found with ID:", userId);
+      res.status(300).json({ error: "User not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    console.error("❌ Error updating Twitter info:", error);
+    res.status(400);
   }
 });
 
 userDatabaseRouter.post("/add", async (req, res) => {
   try {
-    const { uniqueId, twitterId, twitterUsername } = req.body;
+    const { userId, twitterId, twitterUsername, addresses, expoToken } =
+      req.body;
 
-    if (!uniqueId || !twitterId || !twitterUsername) {
+    if (!userId || !twitterId || !twitterUsername) {
       res.status(400).json({ message: "Missing required fields" });
     }
 
     // Check if the Twitter ID already exists
-    const existingUser = await User.findOne({ "twitter.id": twitterId });
+    const existingUser = await UserModel.findOne({ uniqueId: userId });
     if (existingUser) {
       res.status(409).json({ message: "User already exists" });
     }
 
     // Create a new user
-    const newUser = new User({
-      uniqueId,
+    const newUser = new UserModel({
+      uniqueId: userId,
       twitter: {
         id: twitterId,
         username: twitterUsername,
       },
+      addresses,
+      expoToken: [expoToken],
     });
     await newUser.save();
     res

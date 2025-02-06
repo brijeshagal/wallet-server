@@ -1,5 +1,3 @@
-
-
 interface NotificationData {
   [key: string]: any;
 }
@@ -35,8 +33,8 @@ class NotificationService {
     title: string;
     body: string;
     data?: NotificationData;
-  }): Promise<void> {
-    if (!expoPushToken) return;
+  }): Promise<boolean> {
+    if (!expoPushToken) return false;
 
     const message = {
       to: expoPushToken,
@@ -57,8 +55,11 @@ class NotificationService {
         body: JSON.stringify(message),
       });
       console.log({ response });
+      // @TODO based on response add return
+      return true;
     } catch (e) {
       console.log({ e });
+      return false;
     }
   }
 }
