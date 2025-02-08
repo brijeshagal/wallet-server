@@ -10,12 +10,10 @@ const userSchema = new mongoose.Schema(
     twitter: {
       id: {
         type: String,
-        required: true,
-        unique: true, // Ensuring Twitter ID is unique
+        unique: true,
       },
       username: {
         type: String,
-        required: true,
       },
     },
     addresses: {

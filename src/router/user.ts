@@ -25,23 +25,23 @@ userDatabaseRouter.post("/exists/twitter/:twitterId", async (req, res) => {
   }
 });
 
-userDatabaseRouter.get("/add/twitter/:twitterId", async (req, res) => {
+userDatabaseRouter.post("/add/twitter", async (req, res) => {
   const { userId, twitterUserId, twitterUsername } = req.body;
   try {
-    const user = await UserModel.findByIdAndUpdate(
-      userId, // Find user by their uniqueId
+    const user = await UserModel.findOneAndUpdate(
+      { uniqueId: userId }, // Find user by uniqueId instead of _id
       {
         $set: {
           "twitter.id": twitterUserId,
           "twitter.username": twitterUsername,
         },
       },
-      { new: true } // Return updated user
+      { new: true, runValidators: true } // Ensure validation runs
     );
 
     if (user) {
       console.log("✅ Twitter info updated:", user);
-      res.status(200);
+      res.status(200).json({ message: "Twitter details added" });
     } else {
       console.log("❌ No user found with ID:", userId);
       res.status(300).json({ error: "User not found" });
@@ -54,10 +54,9 @@ userDatabaseRouter.get("/add/twitter/:twitterId", async (req, res) => {
 
 userDatabaseRouter.post("/add", async (req, res) => {
   try {
-    const { userId, twitterId, twitterUsername, addresses, expoToken } =
-      req.body;
+    const { userId, addresses, expoToken } = req.body;
 
-    if (!userId || !twitterId || !twitterUsername) {
+    if (!userId) {
       res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -70,10 +69,10 @@ userDatabaseRouter.post("/add", async (req, res) => {
     // Create a new user
     const newUser = new UserModel({
       uniqueId: userId,
-      twitter: {
-        id: twitterId,
-        username: twitterUsername,
-      },
+      // twitter: {
+      //   id: twitterId,
+      //   username: twitterUsername,
+      // },
       addresses,
       expoToken: [expoToken],
     });
@@ -82,6 +81,7 @@ userDatabaseRouter.post("/add", async (req, res) => {
       .status(201)
       .json({ message: "User created successfully", user: newUser });
   } catch (error) {
+    console.log({ error });
     res.status(500).json({ message: "Internal server error", error });
   }
 });

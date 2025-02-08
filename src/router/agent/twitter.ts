@@ -68,12 +68,15 @@ twitterAgentRouter.post("/notify-user", async (req, res) => {
     if (!twitterUserId) {
       res.status(400).json({ message: "Twitter ID is required" });
     }
+    if (!tweetId) {
+      res.status(400).json({ message: "Tweet ID is required" });
+    }
 
     // Check if user exists
     const user = await UserModel.findOne({ "twitter.id": twitterUserId });
-    
+
     if (user) {
-      const tweetDetails = await AssetModel.findOne({ "twitter.id": tweetId });
+      const tweetDetails = await AssetModel.findOne({ "tweetId": tweetId });
       if (tweetDetails) {
         const isUserNotified = await NotificationService.sendPushNotification({
           // @TODO update body and title based on type of asset
@@ -108,10 +111,10 @@ twitterAgentRouter.post("/notify-user", async (req, res) => {
           .status(200)
           .json({ exists: true, user, userNotified: isUserNotified });
       } else {
-        res.status(404).json({ exists: false, message: "User not found" });
+        res.status(404).json({ exists: false, notified: false, message: "Tweet not found" });
       }
     } else {
-      res.status(404).json({ exists: false, message: "User not found" });
+      res.status(404).json({ exists: false, notified: false, message: "User not found" });
     }
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
